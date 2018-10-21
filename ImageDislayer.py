@@ -48,13 +48,17 @@ class ImageDisplayer:
             imSeg.Blur(imageObj)
             imSeg.Threshold(imageObj)
             imSeg.Sharpen(imageObj)
+            imSeg.Bitwise(imageObj)
+
             imSeg.Contour(imageObj)
 
-            if("spanner" in imageObj.imagePath):
+            '''if("spanner" in imageObj.imagePath):
 
                 imSeg.Erosion(imageObj)
-                imSeg.Dilatation(imageObj)
+                imSeg.Dilatation(imageObj)'''
 
+            #imageObj.ComputeCirtuitAndAreaOfObject()
+            #imageObj.ComputeCenterOfMass()
             imageObjects.append(imageObj)
 
         self.allImages =  [obj.processedImage for obj in imageObjects]
@@ -91,6 +95,7 @@ class ImageDisplayer:
 
                 if(type(imageArray) != np.array):
                     imageArray = np.array(imageArray)
+
 
                 if(imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))

@@ -5,6 +5,7 @@ import numpy as np
 def ReadBlackAndWhite(imageObject):
 
     imageObject.processedImage = cv2.cvtColor(imageObject.processedImage, cv2.COLOR_BGR2GRAY)
+    imageObject.image = imageObject.processedImage
 
 
 def Threshold(imageObject):
@@ -13,9 +14,16 @@ def Threshold(imageObject):
     imageObject.processedImage = thresholded
 
 
+def Bitwise(imageObject):
+
+    imageObject.processedImage = cv2.bitwise_and(imageObject.image, imageObject.processedImage, None)
+    ret, thresholded = cv2.threshold(imageObject.processedImage, 0, 255, cv2.THRESH_OTSU)
+    imageObject.processedImage = thresholded
+
+
 def Blur(imageObject):
 
-    kernel = np.ones((4,4),np.float32)/25
+    kernel = np.ones((6,6),np.float32)/25
     imageObject.processedImage = cv2.filter2D(imageObject.processedImage, -1, kernel)
 
 
@@ -31,7 +39,7 @@ def Sharpen(imageObject):
 def Erosion(imageObject):
 
     kernel = np.ones((3,3), np.uint8)
-    imageObject.processedImage = cv2.erode(imageObject.processedImage, kernel, iterations=2)
+    imageObject.processedImage = cv2.erode(imageObject.processedImage, kernel, iterations=4)
 
 
 def Dilatation(imageObject):
@@ -42,8 +50,8 @@ def Dilatation(imageObject):
 
 def Contour(imageObject):
 
-    newImage, contours, hierarchy = cv2.findContours(imageObject.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    imageObject.processedImage = cv2.fillPoly(imageObject.processedImage, pts =contours, color=(255,255,255))
-    #return cv2.Canny(imageArray, 0, 255)
+    #newImage, cnts, hierarchy = cv2.findContours(imageObject.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #imageObject.processedImage = cv2.fillPoly(imageObject.processedImage, pts =cnts, color=(255,255,255))
+    imageObject.imageContour = cv2.Canny(imageObject.processedImage, 0, 255)
 
 
