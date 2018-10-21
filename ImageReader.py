@@ -60,5 +60,3 @@ def LoadOtherImages():
 
 
     return (trainFilePaths, trainLabels, testFilePaths, testLabels)
-
-

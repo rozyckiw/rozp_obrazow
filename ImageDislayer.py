@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import numpy as np
+import ImageSegmentation as imSeg
 
 class ImageDisplayer:
 
@@ -26,6 +28,35 @@ class ImageDisplayer:
 
 
     def DisplayNumberImagesAnimation(self, images, labels):
+
+        self.allImages = images
+        self.allLabels = labels
+
+        imagesToDisplay = images[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
+        labelsToDisplay = labels[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
+        self.actualFirstImage += self.imagesPerPage
+        self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
+
+
+    def DisplayOtherImagesAnimation(self, imagesPaths, labels):
+
+        images = []
+
+        for path in imagesPaths:
+
+            imageArray = imSeg.ReadBlackAndWhite(path)
+            imageArray = imSeg.Blur(imageArray)
+            imageArray = imSeg.Threshold(imageArray)
+            imageArray = imSeg.Sharpen(imageArray)
+            imageArray = imSeg.Contour(imageArray)
+            #imageArray = imSeg.FillContour(imageArray)
+
+            if("spanner" in path):
+
+                imageArray = imSeg.Erosion(imageArray)
+                imageArray = imSeg.Dilatation(imageArray)
+
+            images.append(imageArray)
 
         self.allImages = images
         self.allLabels = labels
@@ -65,7 +96,7 @@ class ImageDisplayer:
                 if(imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
-                self.imagePlot[i, j].matshow(imageArray)
+                self.imagePlot[i, j].matshow(imageArray, cmap='gray')
                 self.imagePlot[i, j].set_title(labels[imageIndex])
                 self.imagePlot[i, j].axis('off')
                 imageIndex += 1
@@ -90,7 +121,7 @@ class ImageDisplayer:
                 if(imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
-                self.imagePlot[i, j].matshow(imageArray)
+                self.imagePlot[i, j].matshow(imageArray, cmap='gray')
                 self.imagePlot[i, j].set_title(labels[imageIndex])
                 imageIndex += 1
 
