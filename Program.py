@@ -2,13 +2,13 @@ import ImageReader as ImRead
 import ImageDislayer as ImDisp
 
 
-trainImages, trainLabels, testImages, testLabels = ImRead.LoadOtherImages()
+trainImages, testImages = ImRead.LoadOtherImages()
 #ImDisp.DisplayNumberImage(trainImages[10])
 
 imDisp = ImDisp.ImageDisplayer(6)
-imDisp.DisplayOtherImagesAnimation(trainImages, trainLabels)
+imDisp.DisplayOtherImagesAnimation(trainImages)
 
-#ImDisp.DisplayNumberImagesAnimation(trainImages, trainLabels, 6)
+#imDisp.DisplayNumberImagesAnimation(trainImages)
 
 #print(trainLabels[10])
 

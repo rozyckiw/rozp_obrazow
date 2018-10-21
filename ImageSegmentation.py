@@ -2,49 +2,48 @@ import cv2
 import numpy as np
 
 
-def ReadBlackAndWhite(fileName):
+def ReadBlackAndWhite(imageObject):
 
-    img = cv2.imread(fileName)
-    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-
-def Threshold(imageArray):
-
-    ret, thresholded = cv2.threshold(imageArray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    return thresholded
+    imageObject.processedImage = cv2.cvtColor(imageObject.processedImage, cv2.COLOR_BGR2GRAY)
 
 
-def Blur(imageArray):
+def Threshold(imageObject):
+
+    ret, thresholded = cv2.threshold(imageObject.processedImage, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    imageObject.processedImage = thresholded
+
+
+def Blur(imageObject):
 
     kernel = np.ones((4,4),np.float32)/25
-    return cv2.filter2D(imageArray,-1,kernel)
+    imageObject.processedImage = cv2.filter2D(imageObject.processedImage, -1, kernel)
 
 
-def Sharpen(imageArray):
+def Sharpen(imageObject):
 
     kernel_sharpening = np.array([[-1,-1,-1],
                                   [-1, 9,-1],
                                   [-1,-1,-1]])
 
-    return cv2.filter2D(imageArray, -1, kernel_sharpening)
+    imageObject.processedImage = cv2.filter2D(imageObject.processedImage, -1, kernel_sharpening)
 
 
-def Erosion(imageArray):
+def Erosion(imageObject):
 
     kernel = np.ones((3,3), np.uint8)
-    return cv2.erode(imageArray, kernel, iterations=2)
+    imageObject.processedImage = cv2.erode(imageObject.processedImage, kernel, iterations=2)
 
 
-def Dilatation(imageArray):
+def Dilatation(imageObject):
 
     kernel = np.ones((4,4), np.uint8)
-    return cv2.dilate(imageArray, kernel, iterations=2)
+    imageObject.processedImage = cv2.dilate(imageObject.processedImage, kernel, iterations=2)
 
 
-def Contour(imageArray):
+def Contour(imageObject):
 
-    newImage, contours, hierarchy = cv2.findContours(imageArray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    return cv2.fillPoly(imageArray, pts =contours, color=(255,255,255))
+    newImage, contours, hierarchy = cv2.findContours(imageObject.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    imageObject.processedImage = cv2.fillPoly(imageObject.processedImage, pts =contours, color=(255,255,255))
     #return cv2.Canny(imageArray, 0, 255)
 
 

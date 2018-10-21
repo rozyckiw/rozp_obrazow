@@ -1,5 +1,6 @@
 from mnist import MNIST
 import os
+import ImageObject as ImObj
 
 def LoadNumbersImages():
 
@@ -19,19 +20,27 @@ def LoadNumbersImages():
     trainImages, trainLabels = mndata.load_training()
     testImages, testLabels = mndata.load_testing()
 
+    trainImageObjects = []
+    testImageObjects = []
+
+    for image, label in zip(trainImages, trainLabels):
+        trainImageObjects.append(ImObj.ImageData(label, image=image))
+
+    for image, label in zip(testImages, testLabels):
+        testImageObjects.append(ImObj.ImageData(label, image=image))
+
+
     #Wyswietla 10 element zbioru
     #print(mndata.display(trainImages[10]))
 
-    return (trainImages, trainLabels, testImages, testLabels)
+    return (trainImageObjects, testImageObjects)
 
 
 def LoadOtherImages():
 
     imagesDirectory = "Images\\OtherImages"
-    trainLabels = []
-    trainFilePaths = []
-    testLabels = []
-    testFilePaths = []
+    trainImages = []
+    testImages = []
 
     for directoryName in os.listdir(imagesDirectory):
 
@@ -46,17 +55,15 @@ def LoadOtherImages():
                 for trainObject in os.listdir(subDirectory2):
 
                     fullFilePath = os.path.join(subDirectory2, trainObject)
-                    trainLabels.append(trainLabel)
-                    trainFilePaths.append(fullFilePath)
+                    trainImages.append(ImObj.ImageData(trainLabel, imagePath=fullFilePath))
 
         elif("test" in directoryName):
 
             for testObject in os.listdir(subDirectory):
 
                 testLabel = testObject.split("_")[0]
-                testLabels.append(testLabel)
                 fullFilePath = os.path.join(subDirectory, testObject)
-                testFilePaths.append(fullFilePath)
+                testImages.append(ImObj.ImageData(testLabel, imagePath=fullFilePath))
 
 
-    return (trainFilePaths, trainLabels, testFilePaths, testLabels)
+    return (trainImages, testImages)

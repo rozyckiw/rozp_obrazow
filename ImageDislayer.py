@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import numpy as np
 import ImageSegmentation as imSeg
 
@@ -27,42 +26,42 @@ class ImageDisplayer:
         plt.show()
 
 
-    def DisplayNumberImagesAnimation(self, images, labels):
+    def DisplayNumberImagesAnimation(self, imageObjects):
 
-        self.allImages = images
-        self.allLabels = labels
+        self.allImages = [imgObj.processedImage for imgObj in imageObjects]
+        self.allLabels = [imgObj.label for imgObj in imageObjects]
 
-        imagesToDisplay = images[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
-        labelsToDisplay = labels[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
+        imagesToDisplay = [imageObjects[i].processedImage for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
+        labelsToDisplay = [imageObjects[i].label for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
 
 
-    def DisplayOtherImagesAnimation(self, imagesPaths, labels):
+    def DisplayOtherImagesAnimation(self, imagesData):
 
-        images = []
+        imageObjects = []
 
-        for path in imagesPaths:
+        for imageObj in imagesData:
 
-            imageArray = imSeg.ReadBlackAndWhite(path)
-            imageArray = imSeg.Blur(imageArray)
-            imageArray = imSeg.Threshold(imageArray)
-            imageArray = imSeg.Sharpen(imageArray)
-            imageArray = imSeg.Contour(imageArray)
-            #imageArray = imSeg.FillContour(imageArray)
+            imageObj.ReadImage()
+            imSeg.ReadBlackAndWhite(imageObj)
+            imSeg.Blur(imageObj)
+            imSeg.Threshold(imageObj)
+            imSeg.Sharpen(imageObj)
+            imSeg.Contour(imageObj)
 
-            if("spanner" in path):
+            if("spanner" in imageObj.imagePath):
 
-                imageArray = imSeg.Erosion(imageArray)
-                imageArray = imSeg.Dilatation(imageArray)
+                imSeg.Erosion(imageObj)
+                imSeg.Dilatation(imageObj)
 
-            images.append(imageArray)
+            imageObjects.append(imageObj)
 
-        self.allImages = images
-        self.allLabels = labels
+        self.allImages =  [obj.processedImage for obj in imageObjects]
+        self.allLabels = [obj.label for obj in imageObjects]
 
-        imagesToDisplay = images[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
-        labelsToDisplay = labels[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
+        imagesToDisplay = [imageObjects[i].processedImage for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
+        labelsToDisplay = [imageObjects[i].label for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
 
