@@ -50,21 +50,20 @@ class ImageDisplayer:
             imSeg.Sharpen(imageObj)
             imSeg.Bitwise(imageObj)
 
-            imSeg.Contour(imageObj)
-
-            '''if("spanner" in imageObj.imagePath):
+            if("spanner" in imageObj.imagePath):
 
                 imSeg.Erosion(imageObj)
-                imSeg.Dilatation(imageObj)'''
+                imSeg.Dilatation(imageObj)
 
-            #imageObj.ComputeCirtuitAndAreaOfObject()
-            #imageObj.ComputeCenterOfMass()
+            imSeg.Contour(imageObj)
+            imageObj.ComputeBasicObjectProperties()
+            imSeg.DrawCenterOfMass(imageObj)
             imageObjects.append(imageObj)
 
-        self.allImages =  [obj.processedImage for obj in imageObjects]
+        self.allImages =  [obj.imageContour for obj in imageObjects]
         self.allLabels = [obj.label for obj in imageObjects]
 
-        imagesToDisplay = [imageObjects[i].processedImage for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
+        imagesToDisplay = [imageObjects[i].imageContour for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
         labelsToDisplay = [imageObjects[i].label for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)

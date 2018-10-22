@@ -4,6 +4,8 @@ import numpy as np
 
 class ImageData:
 
+    referenceObjects = []
+
     def __init__(self, label, image = None, imagePath = None):
 
         self.label = label
@@ -23,29 +25,22 @@ class ImageData:
         self.centerOfMass = None
 
 
+    def AddReferenceObject(self):
+
+        ifExists = False
+
+        for obj in ImageData.referenceObjects:
+
+            if(obj.label == self.label): ifExists = True
+
+        if not ifExists:
+            ImageData.referenceObjects.append(self.imageContour)
+
+
     def ReadImage(self):
 
         self.image = cv2.imread(self.imagePath)
         self.processedImage = self.image
-
-
-    def ComputeCenterOfMass(self):
-
-        xSum = 0
-        ySum = 0
-        allElements = 0
-
-        for x in range(self.processedImage.shape[0]):
-
-            for y in range(self.processedImage.shape[1]):
-
-                if(self.processedImage[x, y] == 255):
-
-                    xSum += x
-                    ySum += y
-                    allElements += 1
-
-        self.centerOfMass = (xSum / allElements, ySum / allElements)
 
 
     def ComputeBasicObjectProperties(self):
@@ -68,4 +63,24 @@ class ImageData:
                     xSum += indexX
                     ySum += indexY
 
-        self.centerOfMass = (xSum / self.area, ySum / self.area)
+        self.centerOfMass = (ySum / self.area, xSum / self.area)
+
+
+    def DetermineDistanceFunction(self):
+
+        self.rFunction = []
+        for x in range(self.imageContour.shape[0]):
+            for y in range(self.imageContour.shape[1]):
+                if (self.imageContour[x][y] != 0):
+
+                    distance = np.sqrt((x-self.centerOfMass[0])**2 + (y-self.centerOfMass[1])**2)
+                    self.rFunction.append(distance)
+
+
+    def ComputeAndNormalizeFFT(self):
+
+        self.fftResult = np.fft.fft(np.array(self.rFunction))
+
+        for i in range(len(self.fftResult)):
+
+            self.fftResult[i] = np.exp(1j * i)
