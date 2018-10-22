@@ -56,8 +56,9 @@ class ImageDisplayer:
                 imSeg.Dilatation(imageObj)
 
             imSeg.Contour(imageObj)
-            imageObj.ComputeBasicObjectProperties()
-            imSeg.DrawCenterOfMass(imageObj)
+            imageObj.ComputeFourierDescriptors()
+            #imageObj.ComputeBasicObjectProperties()
+            #imSeg.DrawCenterOfMass(imageObj)
             imageObjects.append(imageObj)
 
         self.allImages =  [obj.imageContour for obj in imageObjects]

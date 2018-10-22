@@ -53,6 +53,7 @@ def Contour(imageObject):
     #newImage, cnts, hierarchy = cv2.findContours(imageObject.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     #imageObject.processedImage = cv2.fillPoly(imageObject.processedImage, pts =cnts, color=(255,255,255))
     imageObject.imageContour = cv2.Canny(imageObject.processedImage, 0, 255)
+    #newImage, cnts, hierarchy = cv2.findContours(imageObject.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 
 def DrawCenterOfMass(imageObject):

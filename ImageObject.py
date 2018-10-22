@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import pyefd
 
 class ImageData:
 
@@ -28,13 +28,18 @@ class ImageData:
     def AddReferenceObject(self):
 
         ifExists = False
+        refObject = None
 
         for obj in ImageData.referenceObjects:
 
-            if(obj.label == self.label): ifExists = True
+            if(obj.label == self.label):
 
-        if not ifExists:
-            ImageData.referenceObjects.append(self.imageContour)
+                ifExists = True
+                refObject = obj
+                return (ifExists, refObject)
+
+        ImageData.referenceObjects.append(self.imageContour)
+        return ifExists, refObject
 
 
     def ReadImage(self):
@@ -80,7 +85,29 @@ class ImageData:
     def ComputeAndNormalizeFFT(self):
 
         self.fftResult = np.fft.fft(np.array(self.rFunction))
+        ifRefObjectExists, refObject = self.AddReferenceObject()
 
-        for i in range(len(self.fftResult)):
+        if(ifRefObjectExists):
 
-            self.fftResult[i] = np.exp(1j * i)
+            for i in range(len(self.fftResult)):
+
+                self.fftResult[i] = np.exp(1j * i)
+
+
+    def ComputeFourierDescriptors(self):
+
+        newImage, contours, hierarchy = cv2.findContours(
+            self.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Iterate through all contours found and store each contour's
+        # elliptical Fourier descriptor's coefficients.
+        coeffs = []
+        for cnt in contours:
+            # Find the coefficients of all contours
+            coeffs.append(pyefd.elliptic_fourier_descriptors(
+                np.squeeze(cnt), order=10, normalize=True))
+
+        #coeffs = pyefd.elliptic_fourier_descriptors(self.imageContour, order=10, normalize=True)
+        result = np.array(coeffs).flatten()[3:]
+
+        return result
