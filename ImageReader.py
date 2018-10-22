@@ -3,6 +3,7 @@ import os
 import csv
 import ImageObject as ImObj
 
+
 def saveMnistDataToTxtFile(numbersImagesDirectory):
     for filename in os.listdir(numbersImagesDirectory):
 
@@ -18,8 +19,8 @@ def saveMnistDataToTxtFile(numbersImagesDirectory):
     trainImages, trainLabels = mndata.load_training()
     testImages, testLabels = mndata.load_testing()
 
-    createTxtFileWithData('trainMnist.csv', trainLabels, trainImages)
-    createTxtFileWithData('testMnist.csv', testLabels, testImages)
+    createTxtFileWithData('Output\\trainMnist.csv', trainLabels, trainImages)
+    createTxtFileWithData('Output\\testMnist.csv', testLabels, testImages)
 
 
 

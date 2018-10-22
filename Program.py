@@ -1,19 +1,18 @@
 import ImageReader as ImRead
 import ImageDislayer as ImDisp
+import ImageSegmentation as imSeg
+import Features
 
 
-# trainImages, testImages = ImRead.LoadNumbersImages()
-ImRead.saveMnistDataToTxtFile("Images\\NumberImages")
-# print trainImages[0].image
-# print trainImages[0].label
-#
+trainImages, testImages = ImRead.LoadOtherImages()
+#ImRead.saveMnistDataToTxtFile("Images\\NumberImages")
 # ImDisp.DisplayNumberImage(trainImages[10])
-#
-# imDisp = ImDisp.ImageDisplayer(6)
-# imDisp.DisplayOtherImagesAnimation(trainImages)
 
-#imDisp.DisplayNumberImagesAnimation(trainImages)
+imSeg.ExtractImages(trainImages)
+imSeg.ExtractImages(testImages)
 
-#print(trainLabels[10])
+Features.SaveFeaturesToFile(trainImages, "otherImagesTrain.txt")
+Features.SaveFeaturesToFile(testImages, "otherImagesTest.txt")
 
-#trainFilePaths, trainLabels, testFilePaths, testLabels = ImRead.LoadOtherImages()
+#imDisp = ImDisp.ImageDisplayer(6)
+#imDisp.DisplayOtherImagesAnimation(trainImages)

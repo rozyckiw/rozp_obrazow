@@ -22,7 +22,8 @@ class ImageData:
             self.imagePath = imagePath
 
         #Features
-        self.centerOfMass = None
+        #self.centerOfMass = None
+        self.imageDescriptors = []
 
 
     def AddReferenceObject(self):
@@ -104,10 +105,10 @@ class ImageData:
         coeffs = []
         for cnt in contours:
             # Find the coefficients of all contours
-            coeffs.append(pyefd.elliptic_fourier_descriptors(
-                np.squeeze(cnt), order=10, normalize=True))
+            try:
+                coeffs.append(pyefd.elliptic_fourier_descriptors(
+                    np.squeeze(cnt), order=10, normalize=True))
+            except:
+                continue
 
-        #coeffs = pyefd.elliptic_fourier_descriptors(self.imageContour, order=10, normalize=True)
-        result = np.array(coeffs).flatten()[3:]
-
-        return result
+        self.imageDescriptors = np.array(coeffs).flatten()[3:14]

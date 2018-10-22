@@ -59,3 +59,22 @@ def Contour(imageObject):
 def DrawCenterOfMass(imageObject):
 
     imageObject.imageContour = cv2.circle(imageObject.imageContour, imageObject.centerOfMass, 7, (255, 0, 0), -1)
+
+
+def ExtractImages(imageObjects):
+
+    for imageObj in imageObjects:
+
+        imageObj.ReadImage()
+        ReadBlackAndWhite(imageObj)
+        Blur(imageObj)
+        Threshold(imageObj)
+        Sharpen(imageObj)
+        Bitwise(imageObj)
+
+        if ("spanner" in imageObj.imagePath):
+            Erosion(imageObj)
+            Dilatation(imageObj)
+
+        Contour(imageObj)
+        imageObj.ComputeFourierDescriptors()

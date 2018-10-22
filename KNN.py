@@ -1,6 +1,8 @@
 from scipy.stats import mode
+import numpy as np
 
 class KNN:
+
     def __init__(self, data, labels, k):
         self.data = data
         self.labels = labels

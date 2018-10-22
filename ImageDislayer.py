@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import ImageSegmentation as imSeg
 
 
 class ImageDisplayer:
@@ -12,6 +11,7 @@ class ImageDisplayer:
         self.imagePlot = None
         self.allImages = None
         self.allLabels = None
+
 
     def DisplayNumberImage(self,  imageArray):
 
@@ -25,6 +25,7 @@ class ImageDisplayer:
         plt.matshow(imageArray)
         plt.show()
 
+
     def DisplayNumberImagesAnimation(self, imageObjects):
 
         self.allImages = [imgObj.processedImage for imgObj in imageObjects]
@@ -37,28 +38,8 @@ class ImageDisplayer:
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
 
-    def DisplayOtherImagesAnimation(self, imagesData):
 
-        imageObjects = []
-
-        for imageObj in imagesData:
-
-            imageObj.ReadImage()
-            imSeg.ReadBlackAndWhite(imageObj)
-            imSeg.Blur(imageObj)
-            imSeg.Threshold(imageObj)
-            imSeg.Sharpen(imageObj)
-            imSeg.Bitwise(imageObj)
-
-            if ("spanner" in imageObj.imagePath):
-                imSeg.Erosion(imageObj)
-                imSeg.Dilatation(imageObj)
-
-            imSeg.Contour(imageObj)
-            imageObj.ComputeFourierDescriptors()
-            #imageObj.ComputeBasicObjectProperties()
-            #imSeg.DrawCenterOfMass(imageObj)
-            imageObjects.append(imageObj)
+    def DisplayOtherImagesAnimation(self, imageObjects):
 
         self.allImages = [obj.imageContour for obj in imageObjects]
         self.allLabels = [obj.label for obj in imageObjects]
@@ -70,11 +51,13 @@ class ImageDisplayer:
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
 
+
     def keyPressed(self, event):
 
         if (event.key == ' '):
             self.actualFirstImage += self.imagesPerPage
             self.UpdatePlot()
+
 
     def ImagesAnimation(self, images, labels):
 
@@ -103,6 +86,7 @@ class ImageDisplayer:
                 imageIndex += 1
 
         plt.show()
+
 
     def UpdatePlot(self):
 
