@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ImageSegmentation as imSeg
 
+
 class ImageDisplayer:
 
     def __init__(self, howManyImagesPerPage):
@@ -12,30 +13,29 @@ class ImageDisplayer:
         self.allImages = None
         self.allLabels = None
 
+    def DisplayNumberImage(self,  imageArray):
 
-    def DisplayNumberImage(self, imageArray):
-
-        if(type(imageArray) != np.array):
+        if (type(imageArray) != np.array):
             imageArray = np.array(imageArray)
 
-        if(imageArray.ndim == 1):
+        if (imageArray.ndim == 1):
             imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
         plt.figure(0)
         plt.matshow(imageArray)
         plt.show()
 
-
     def DisplayNumberImagesAnimation(self, imageObjects):
 
         self.allImages = [imgObj.processedImage for imgObj in imageObjects]
         self.allLabels = [imgObj.label for imgObj in imageObjects]
 
-        imagesToDisplay = [imageObjects[i].processedImage for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
-        labelsToDisplay = [imageObjects[i].label for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
+        imagesToDisplay = [imageObjects[i].processedImage for i in
+                           range(self.actualFirstImage, self.actualFirstImage + self.imagesPerPage)]
+        labelsToDisplay = [imageObjects[i].label for i in
+                           range(self.actualFirstImage, self.actualFirstImage + self.imagesPerPage)]
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
-
 
     def DisplayOtherImagesAnimation(self, imagesData):
 
@@ -50,8 +50,7 @@ class ImageDisplayer:
             imSeg.Sharpen(imageObj)
             imSeg.Bitwise(imageObj)
 
-            if("spanner" in imageObj.imagePath):
-
+            if ("spanner" in imageObj.imagePath):
                 imSeg.Erosion(imageObj)
                 imSeg.Dilatation(imageObj)
 
@@ -61,27 +60,26 @@ class ImageDisplayer:
             #imSeg.DrawCenterOfMass(imageObj)
             imageObjects.append(imageObj)
 
-        self.allImages =  [obj.imageContour for obj in imageObjects]
+        self.allImages = [obj.imageContour for obj in imageObjects]
         self.allLabels = [obj.label for obj in imageObjects]
 
-        imagesToDisplay = [imageObjects[i].imageContour for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
-        labelsToDisplay = [imageObjects[i].label for i in range(self.actualFirstImage, self.actualFirstImage+self.imagesPerPage)]
+        imagesToDisplay = [imageObjects[i].imageContour for i in
+                           range(self.actualFirstImage, self.actualFirstImage + self.imagesPerPage)]
+        labelsToDisplay = [imageObjects[i].label for i in
+                           range(self.actualFirstImage, self.actualFirstImage + self.imagesPerPage)]
         self.actualFirstImage += self.imagesPerPage
         self.ImagesAnimation(imagesToDisplay, labelsToDisplay)
-
 
     def keyPressed(self, event):
 
         if (event.key == ' '):
-
             self.actualFirstImage += self.imagesPerPage
             self.UpdatePlot()
-
 
     def ImagesAnimation(self, images, labels):
 
         yElements = (self.imagesPerPage // 3)
-        if(self.imagesPerPage % 3 != 0):
+        if (self.imagesPerPage % 3 != 0):
             yElements += 1
 
         f, self.imagePlot = plt.subplots(yElements, 3)
@@ -93,11 +91,10 @@ class ImageDisplayer:
 
                 imageArray = images[imageIndex]
 
-                if(type(imageArray) != np.array):
+                if (type(imageArray) != np.array):
                     imageArray = np.array(imageArray)
 
-
-                if(imageArray.ndim == 1):
+                if (imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
                 self.imagePlot[i, j].matshow(imageArray, cmap='gray')
@@ -107,11 +104,10 @@ class ImageDisplayer:
 
         plt.show()
 
-
     def UpdatePlot(self):
 
-        images = self.allImages[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
-        labels = self.allLabels[self.actualFirstImage:self.actualFirstImage+self.imagesPerPage]
+        images = self.allImages[self.actualFirstImage:self.actualFirstImage + self.imagesPerPage]
+        labels = self.allLabels[self.actualFirstImage:self.actualFirstImage + self.imagesPerPage]
         imageIndex = 0
 
         for i in range(self.imagePlot.shape[0]):
@@ -119,10 +115,10 @@ class ImageDisplayer:
 
                 imageArray = images[imageIndex]
 
-                if(type(imageArray) != np.array):
+                if (type(imageArray) != np.array):
                     imageArray = np.array(imageArray)
 
-                if(imageArray.ndim == 1):
+                if (imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
                 self.imagePlot[i, j].matshow(imageArray, cmap='gray')
@@ -130,5 +126,3 @@ class ImageDisplayer:
                 imageIndex += 1
 
         plt.show()
-
-
