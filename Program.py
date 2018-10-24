@@ -11,8 +11,8 @@ trainImages, testImages = ImRead.LoadOtherImages()
 imSeg.ExtractImages(trainImages)
 imSeg.ExtractImages(testImages)
 
-Features.SaveFeaturesToFile(trainImages, "otherImagesTrain.txt")
-Features.SaveFeaturesToFile(testImages, "otherImagesTest.txt")
+Features.SaveFeaturesToFile(trainImages, "otherImagesLabelsTrain.txt", "otherImagesTrain.txt")
+Features.SaveFeaturesToFile(testImages, "otherImagesLabelsTest.txt", "otherImagesTest.txt")
 
 #imDisp = ImDisp.ImageDisplayer(6)
 #imDisp.DisplayOtherImagesAnimation(trainImages)
