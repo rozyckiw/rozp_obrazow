@@ -4,8 +4,6 @@ import pyefd
 
 class ImageData:
 
-    referenceObjects = []
-
     def __init__(self, label, image = None, imagePath = None):
 
         self.label = label
@@ -21,26 +19,7 @@ class ImageData:
 
             self.imagePath = imagePath
 
-        #Features
-        #self.centerOfMass = None
         self.imageDescriptors = []
-
-
-    def AddReferenceObject(self):
-
-        ifExists = False
-        refObject = None
-
-        for obj in ImageData.referenceObjects:
-
-            if(obj.label == self.label):
-
-                ifExists = True
-                refObject = obj
-                return (ifExists, refObject)
-
-        ImageData.referenceObjects.append(self.imageContour)
-        return ifExists, refObject
 
 
     def ReadImage(self):
@@ -49,7 +28,12 @@ class ImageData:
         self.processedImage = self.image
 
 
-    def ComputeBasicObjectProperties(self):
+    def ComputeHuMoments(self):
+
+        self.imageFeatures = cv2.HuMoments(cv2.moments(self.processedImage)).flatten()
+
+
+    def ComputeCenterOfMass(self):
 
         self.circuit = 0
         self.area = 0
@@ -75,27 +59,21 @@ class ImageData:
     def DetermineDistanceFunction(self):
 
         self.rFunction = []
-        for x in range(self.imageContour.shape[0]):
-            for y in range(self.imageContour.shape[1]):
-                if (self.imageContour[x][y] != 0):
+        for y in range(self.imageContour.shape[0]):
+            for x in range(self.imageContour.shape[1]):
+                if (self.imageContour[y][x] != 0):
 
-                    distance = np.sqrt((x-self.centerOfMass[0])**2 + (y-self.centerOfMass[1])**2)
+                    distance = np.sqrt((y-self.centerOfMass[0])**2 + (x-self.centerOfMass[1])**2)
                     self.rFunction.append(distance)
 
 
-    def ComputeAndNormalizeFFT(self):
+    def DistanceFFT(self):
 
-        self.fftResult = np.fft.fft(np.array(self.rFunction))
-        ifRefObjectExists, refObject = self.AddReferenceObject()
-
-        if(ifRefObjectExists):
-
-            for i in range(len(self.fftResult)):
-
-                self.fftResult[i] = np.exp(1j * i)
+        fftResult = np.abs(np.fft.fft(np.array(self.rFunction)))
+        self.imageFeatures = fftResult
 
 
-    def ComputeFourierDescriptors(self):
+    def ComputeFourierDescriptors(self, amountOfDescriptors = 10):
 
         newImage, contours, hierarchy = cv2.findContours(
             self.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -111,4 +89,5 @@ class ImageData:
             except:
                 continue
 
-        self.imageDescriptors = np.array(coeffs).flatten()[3:14]
+        self.imageDescriptors = np.array(coeffs).flatten()[3 : 4 + amountOfDescriptors]
+        self.imageFeatures = self.imageDescriptors

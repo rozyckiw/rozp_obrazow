@@ -1,4 +1,23 @@
 import os
+import ProgramParameters as PP
+
+def ComputeFeatures(imageObjects, method):
+
+    for imageObj in imageObjects:
+
+        if(method == PP.OtherImagesFeaturesType.ContourFourierDescriptors):
+
+            imageObj.ComputeFourierDescriptors()
+
+        elif(method == PP.OtherImagesFeaturesType.DistanceFourierDescriptors):
+
+            imageObj.ComputeCenterOfMass()
+            imageObj.DetermineDistanceFunction()
+            imageObj.DistanceFFT()
+
+        elif(method == PP.OtherImagesFeaturesType.HuMoments):
+
+            imageObj.ComputeHuMoments()
 
 
 def SaveFeaturesToFile(imageObjects, labelFilename, dataFilename):
@@ -17,7 +36,7 @@ def SaveFeaturesToFile(imageObjects, labelFilename, dataFilename):
             lf.write("{0}\n".format(imageObj.label))
             line = ""
 
-            for feature in imageObj.imageDescriptors:
+            for feature in imageObj.imageFeatures:
                 line += "{0:.5} ".format(feature)
 
             line += "\n"

@@ -77,4 +77,3 @@ def ExtractImages(imageObjects):
             Dilatation(imageObj)
 
         Contour(imageObj)
-        imageObj.ComputeFourierDescriptors()
