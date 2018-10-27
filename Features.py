@@ -1,7 +1,7 @@
 import os
 import ProgramParameters as PP
 
-def ComputeFeatures(imageObjects, method):
+def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
     for imageObj in imageObjects:
 
@@ -13,7 +13,7 @@ def ComputeFeatures(imageObjects, method):
 
             imageObj.ComputeCenterOfMass()
             imageObj.DetermineDistanceFunction()
-            imageObj.DistanceFFT()
+            imageObj.DistanceFFT(interpolateTo)
 
         elif(method == PP.OtherImagesFeaturesType.HuMoments):
 

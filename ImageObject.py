@@ -67,10 +67,26 @@ class ImageData:
                     self.rFunction.append(distance)
 
 
-    def DistanceFFT(self):
+    def DistanceFFT(self, valuesAmount):
 
-        fftResult = np.abs(np.fft.fft(np.array(self.rFunction)))
-        self.imageFeatures = fftResult
+        fftResult = np.fft.fft(np.array(self.rFunction))
+        self.imageFeatures = np.abs(fftResult)
+
+        if(valuesAmount > 0):
+            self.InterpolateArray(valuesAmount)
+
+
+    def InterpolateArray(self, valuesAmount):
+
+        indexesTakenIntoAccount = np.linspace(0, len(self.imageFeatures), valuesAmount, dtype=int)
+        newFeatures = []
+
+        for i in range(valuesAmount - 1):
+
+            value = np.mean(self.imageFeatures[indexesTakenIntoAccount[i]:indexesTakenIntoAccount[i+1]])
+            newFeatures.append(value)
+
+        self.imageFeatures = newFeatures
 
 
     def ComputeFourierDescriptors(self, amountOfDescriptors = 10):

@@ -9,7 +9,7 @@ import ProgramParameters as PP
 def main(args):
 
     images = "other"
-    featureMethod = "hu"
+    featureMethod = "dfd"
     ifDisplayImages = True
 
     imagesToClassify = PP.ImagesToClassify(images)
