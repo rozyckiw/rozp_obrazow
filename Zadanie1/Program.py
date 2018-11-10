@@ -8,7 +8,7 @@ import ProgramParameters as PP
 
 def main(args):
 
-    images = "other"
+    images = "textures"
     featureMethod = "hu"
     ifDisplayImages = True
 
@@ -38,6 +38,13 @@ def main(args):
         trainLabels = "otherImagesLabelsTrain.txt"
         testData = "otherImagesTest.txt"
         testLabels = "otherImagesLabelsTest.txt"
+
+    elif(imagesToClassify == PP.ImagesToClassify.Textures):
+
+        print("Loading textures..")
+        trainImages, testImages = ImRead.LoadTextures()
+
+
 
     print("Saving features to file")
     Features.SaveFeaturesToFile(trainImages, trainLabels, trainData)

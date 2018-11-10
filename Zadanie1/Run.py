@@ -2,7 +2,6 @@ import ImageReader as ImReader
 import ClassificationDataReader as cdr
 import numpy as np
 import KNN
-
 # ImReader.saveMnistDataToTxtFile("Images\NumberImages")
 trainLabels = cdr.readFileToArray("trainLabelsMnist.csv")
 testLabels = cdr.readFileToArray("testLabelsMnist.csv")

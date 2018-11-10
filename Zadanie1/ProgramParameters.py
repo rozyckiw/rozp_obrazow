@@ -12,3 +12,4 @@ class ImagesToClassify(str, Enum):
 
     NumberImages = "numbers"
     OtherImages = "other"
+    Textures = "textures"

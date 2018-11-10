@@ -66,6 +66,7 @@ def LoadNumbersImages():
 
 
 def LoadOtherImages():
+
     imagesDirectory = "Images\\OtherImages"
     trainImages = []
     testImages = []
@@ -90,5 +91,37 @@ def LoadOtherImages():
                 testLabel = testObject.split("_")[0]
                 fullFilePath = os.path.join(subDirectory, testObject)
                 testImages.append(ImObj.ImageData(testLabel, imagePath=fullFilePath))
+
+    return (trainImages, testImages)
+
+
+def LoadTextures():
+
+    imagesDirectory = "Images\\Textures"
+    trainImages = []
+    testImages = []
+
+    for directoryName in os.listdir(imagesDirectory):
+
+        subDirectory = os.path.join(imagesDirectory, directoryName)
+        if ("train" in directoryName):
+
+            for trainSubdirectory in os.listdir(subDirectory):
+
+                subDirectory2 = os.path.join(subDirectory, trainSubdirectory)
+                trainLabel = trainSubdirectory
+
+                for trainObject in os.listdir(subDirectory2):
+                    fullFilePath = os.path.join(subDirectory2, trainObject)
+                    trainImages.append(ImObj.ImageData(trainLabel, imagePath=fullFilePath))
+                    trainImages[-1].ReadImage()
+
+        elif ("test" in directoryName):
+
+            for testObject in os.listdir(subDirectory):
+                testLabel = testObject.split("_")[0]
+                fullFilePath = os.path.join(subDirectory, testObject)
+                testImages.append(ImObj.ImageData(testLabel, imagePath=fullFilePath))
+                testImages[-1].ReadImage()
 
     return (trainImages, testImages)

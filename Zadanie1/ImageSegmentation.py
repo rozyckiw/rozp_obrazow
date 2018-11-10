@@ -86,7 +86,7 @@ def ExtractImages(imageObjects):
         Blur(imageObj)
         Threshold(imageObj)
         Sharpen(imageObj)
-        Bitwise(imageObj)
+        #Bitwise(imageObj)
 
         if ("spanner" in imageObj.imagePath):
             Erosion(imageObj)
