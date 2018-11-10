@@ -76,20 +76,23 @@ def DrawCenterOfMass(imageObject):
     imageObject.imageContour = cv2.circle(imageObject.imageContour, imageObject.centerOfMass, 7, (255, 0, 0), -1)
 
 
-def ExtractImages(imageObjects):
+def ExtractImages(imageObjects, onlyConvertToGreyScale=False):
 
     for imageObj in imageObjects:
 
         imageObj.ReadImage()
         #RemoveShadows(imageObj)
         ReadBlackAndWhite(imageObj)
-        Blur(imageObj)
-        Threshold(imageObj)
-        Sharpen(imageObj)
-        #Bitwise(imageObj)
 
-        if ("spanner" in imageObj.imagePath):
-            Erosion(imageObj)
-            Dilatation(imageObj)
+        if(not onlyConvertToGreyScale):
 
-        Contour(imageObj)
+            Blur(imageObj)
+            Threshold(imageObj)
+            Sharpen(imageObj)
+            #Bitwise(imageObj)
+
+            if ("spanner" in imageObj.imagePath):
+                Erosion(imageObj)
+                Dilatation(imageObj)
+
+            Contour(imageObj)

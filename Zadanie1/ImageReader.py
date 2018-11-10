@@ -114,14 +114,12 @@ def LoadTextures():
                 for trainObject in os.listdir(subDirectory2):
                     fullFilePath = os.path.join(subDirectory2, trainObject)
                     trainImages.append(ImObj.ImageData(trainLabel, imagePath=fullFilePath))
-                    trainImages[-1].ReadImage()
 
         elif ("test" in directoryName):
 
             for testObject in os.listdir(subDirectory):
-                testLabel = testObject.split("_")[0]
+
                 fullFilePath = os.path.join(subDirectory, testObject)
-                testImages.append(ImObj.ImageData(testLabel, imagePath=fullFilePath))
-                testImages[-1].ReadImage()
+                testImages.append(ImObj.ImageData(testObject, imagePath=fullFilePath))
 
     return (trainImages, testImages)

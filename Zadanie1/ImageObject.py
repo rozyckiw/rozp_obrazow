@@ -4,6 +4,7 @@ import pyefd
 
 class ImageData:
 
+
     def __init__(self, label, image = None, imagePath = None):
 
         self.label = label
@@ -31,6 +32,32 @@ class ImageData:
     def ComputeHuMoments(self):
 
         self.imageFeatures = cv2.HuMoments(cv2.moments(self.processedImage)).flatten()
+
+
+    def ComputeImagePartsHuMoments(self, kernelSize):
+
+        indexY = 0
+        self.huMoments = []
+        stepYSize = kernelSize
+
+        while(indexY < self.processedImage.shape[0]):
+
+            if(indexY + stepYSize > self.processedImage.shape[0]):
+                stepYSize = self.processedImage.shape[0] - indexY
+
+            indexX = 0
+            stepXSize = kernelSize
+
+            while(indexX < self.processedImage.shape[1]):
+
+                if(indexX + stepXSize > self.processedImage.shape[1]):
+                    stepXSize = self.processedImage.shape[1] - indexX
+
+                im = self.processedImage[indexY:indexY+stepYSize,indexX:indexX+stepXSize]
+                self.huMoments.append(cv2.HuMoments(cv2.moments(im)))
+
+                indexX += stepXSize
+            indexY += stepYSize
 
 
     def ComputeCenterOfMass(self):

@@ -2,10 +2,28 @@ import numpy as np
 
 class OtoczKul:
 
-    def __init__(self, data, labels):
+    def __init__(self, dataFileName, labelsFileName):
 
+        dataFileName = "Output\\" + dataFileName
+        labelsFileName = "Output\\" + labelsFileName
+        data, labels = self.readTrainData(dataFileName, labelsFileName)
         dataDict = self.storeAsDict(data, labels)
-        self.centers,  self.labels = self.computeCenters(dataDict)
+        self.centers, self.labels = self.computeCenters(dataDict)
+
+
+    def readTrainData(self, dataFileName, labelFileName):
+
+        trainData = None
+        trainLabels = None
+
+        with open(dataFileName) as df, open(labelFileName) as lf:
+
+            all_data = df.readlines()
+            all_labels = lf.readlines()
+            trainData = [[float(val) for val in line.split()] for line in all_data]
+            trainLabels = [line.split("\n")[0] for line in all_labels]
+
+        return trainData, trainLabels
 
 
     def storeAsDict(self, data, labels):

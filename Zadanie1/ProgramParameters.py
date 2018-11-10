@@ -13,3 +13,9 @@ class ImagesToClassify(str, Enum):
     NumberImages = "numbers"
     OtherImages = "other"
     Textures = "textures"
+
+
+class ClassificationMethod(str, Enum):
+
+    KNN = "knn"
+    OtoczenieKuliste = "otKul"

@@ -1,5 +1,7 @@
 import os
 import ProgramParameters as PP
+import TextureSegmentation as TS
+import scipy.misc
 
 def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
@@ -20,14 +22,83 @@ def ComputeFeatures(imageObjects, method, interpolateTo = 100):
             imageObj.ComputeHuMoments()
 
 
+def ComputeTexturePartFeatures(imageObjects, kernelSize):
+
+    for imageObj in imageObjects:
+
+        if(not "label" in imageObj.label):
+
+            imageObj.ComputeImagePartsHuMoments(5)
+
+
+def SaveImage(textureObject):
+
+    outputDir = "Output\\Textures\\"
+    fileName = textureObject.fileName.split(".")[0] + ".jpg"
+    fileName = outputDir+fileName
+    scipy.misc.toimage(textureObject.textureArray, cmin=0, cmax=255).save(fileName)
+
+
+def ReadFeaturesOfImage(fileName):
+
+    outputDirectory = "Output\\Textures"
+    dataInputFile = os.path.join(outputDirectory, fileName)
+
+    if not os.path.isfile(dataInputFile):
+
+        print("File not found!")
+        return None
+
+    with open(dataInputFile) as df:
+
+        all_lines = df.readlines()
+        imageHeight, imageWidth, kernelSize = (int(val) for val in all_lines[0].split())
+        inputVectors = [[float(val) for val in line.split()] for line in all_lines[1:]]
+
+    textureObject = TS.TextureFeatures(imageHeight, imageWidth, kernelSize, inputVectors, fileName)
+
+    return textureObject
+
+
+def SaveImagePartsFeatures(imageObjects, kernelSize):
+
+    outputDirectory = "Output\\Textures"
+
+    if not os.path.exists(outputDirectory):
+        os.makedirs(outputDirectory)
+
+
+    for imageObj in imageObjects:
+
+        if(not "label" in imageObj.label):
+
+            dataOutputFile = os.path.join(outputDirectory, imageObj.label.split('.')[0]+".txt")
+
+            with open(dataOutputFile, 'wb') as df:
+
+                imageSize = imageObjects[0].image.shape
+                df.write("{0} {1} {2}\n".format(imageSize[0], imageSize[1], kernelSize))
+                line = ""
+
+                for features in imageObj.huMoments:
+
+                    for feature in features:
+                        line += "{0} ".format(feature[0])
+
+                    line += "\n"
+
+                df.write(line)
+
+
 def SaveFeaturesToFile(imageObjects, labelFilename, dataFilename):
 
     outputDirectory = "Output"
     dataOutputFile = os.path.join(outputDirectory, dataFilename)
     labelOutputFile = os.path.join(outputDirectory, labelFilename)
+    subDirectory = dataOutputFile[0:dataOutputFile.rindex('\\')]
 
-    if not os.path.exists(outputDirectory):
-        os.makedirs(outputDirectory)
+    if not os.path.exists(subDirectory):
+        os.makedirs(subDirectory)
 
     with open(dataOutputFile, 'wb') as df, open(labelOutputFile, 'wb') as lf:
 
