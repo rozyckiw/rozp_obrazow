@@ -7,6 +7,7 @@ import ProgramParameters as PP
 import OtoczenieKuliste as OK
 import KNN
 
+
 def main(args):
 
     images = "textures"
@@ -14,6 +15,7 @@ def main(args):
     classMethod = "otKul"
     ifDisplayImages = False
     ifClassify = True
+    radiusSize = 7
 
     imagesToClassify = PP.ImagesToClassify(images)
     featureExtactionMethod = PP.OtherImagesFeaturesType(featureMethod)
@@ -55,17 +57,16 @@ def main(args):
             imSeg.ExtractImages(trainImages, onlyConvertToGreyScale=True)
             imSeg.ExtractImages(testImages, onlyConvertToGreyScale=True)
 
-            print("Computing hu moments..")
-            kernelSize = 5
-            Features.ComputeFeatures(trainImages, PP.OtherImagesFeaturesType.HuMoments)
-            Features.ComputeTexturePartFeatures(testImages, kernelSize)
+            print("Computing image features..")
+            Features.ComputeFeatures(trainImages, featureExtactionMethod)
+            Features.ComputeTexturePartFeatures(testImages, radiusSize, featureExtactionMethod)
 
             trainData = "Textures\\trainData.txt"
             trainLabels = "Textures\\trainLabels.txt"
 
             print("Saving features to file")
             Features.SaveFeaturesToFile(trainImages, trainLabels, trainData)
-            Features.SaveImagePartsFeatures(testImages, kernelSize)
+            Features.SaveImagePartsFeatures(testImages)
 
 
     elif ifClassify:

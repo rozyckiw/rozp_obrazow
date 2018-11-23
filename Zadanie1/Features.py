@@ -2,6 +2,7 @@ import os
 import ProgramParameters as PP
 import TextureSegmentation as TS
 import scipy.misc
+import numpy as np
 
 def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
@@ -21,14 +22,18 @@ def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
             imageObj.ComputeHuMoments()
 
+        elif(method == PP.OtherImagesFeaturesType.PowerSpectrum):
 
-def ComputeTexturePartFeatures(imageObjects, kernelSize):
+            imageObj.LBP(5)
+
+
+def ComputeTexturePartFeatures(imageObjects, kernelSize, featureExtactionMethod):
 
     for imageObj in imageObjects:
 
         if(not "label" in imageObj.label):
 
-            imageObj.ComputeImagePartsHuMoments(5)
+            imageObj.ComputeImagePartsFeatures(kernelSize, featureExtactionMethod)
 
 
 def SaveImage(textureObject):
@@ -52,15 +57,15 @@ def ReadFeaturesOfImage(fileName):
     with open(dataInputFile) as df:
 
         all_lines = df.readlines()
-        imageHeight, imageWidth, kernelSize = (int(val) for val in all_lines[0].split())
+        imageHeight, imageWidth = (int(val) for val in all_lines[0].split())
         inputVectors = [[float(val) for val in line.split()] for line in all_lines[1:]]
 
-    textureObject = TS.TextureFeatures(imageHeight, imageWidth, kernelSize, inputVectors, fileName)
+    textureObject = TS.TextureFeatures(imageHeight, imageWidth, 0, inputVectors, fileName)
 
     return textureObject
 
 
-def SaveImagePartsFeatures(imageObjects, kernelSize):
+def SaveImagePartsFeatures(imageObjects):
 
     outputDirectory = "Output\\Textures"
 
@@ -77,15 +82,28 @@ def SaveImagePartsFeatures(imageObjects, kernelSize):
             with open(dataOutputFile, 'wb') as df:
 
                 imageSize = imageObjects[0].image.shape
-                df.write("{0} {1} {2}\n".format(imageSize[0], imageSize[1], kernelSize))
+                df.write("{0} {1}\n".format(imageSize[0], imageSize[1]))
                 line = ""
 
-                for features in imageObj.huMoments:
+                for features in imageObj.imageFeatures:
 
-                    for feature in features:
-                        line += "{0} ".format(feature[0])
+                    if(len(features) > 0):
 
-                    line += "\n"
+                        for feature in features:
+
+                            if(type(feature) is np.float64):
+
+                                line += "{0} ".format(feature)
+
+                            else:
+
+                                for precFeature in feature.ravel():
+
+                                    line += "{0:.5} ".format(precFeature)
+
+                                # line += "{0} ".format(feature[0])
+
+                        line += "\n"
 
                 df.write(line)
 
@@ -108,7 +126,13 @@ def SaveFeaturesToFile(imageObjects, labelFilename, dataFilename):
             line = ""
 
             for feature in imageObj.imageFeatures:
-                line += "{0:.5} ".format(feature)
+
+                if(not type(feature) is np.ndarray): line += "{0:.5} ".format(feature)
+                else:
+
+                    for precFeature in feature:
+
+                        line += "{0:.5} ".format(precFeature)
 
             line += "\n"
             df.write(line)

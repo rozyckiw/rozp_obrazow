@@ -1,6 +1,10 @@
 import cv2
 import numpy as np
 import pyefd
+import ProgramParameters as PP
+from skimage.feature import local_binary_pattern
+from scipy.misc import imresize
+
 
 class ImageData:
 
@@ -34,30 +38,64 @@ class ImageData:
         self.imageFeatures = cv2.HuMoments(cv2.moments(self.processedImage)).flatten()
 
 
-    def ComputeImagePartsHuMoments(self, kernelSize):
+    def ComputeImagePartsFeatures(self, radiusSize, featureExtactionMethod):
 
         indexY = 0
-        self.huMoments = []
-        stepYSize = kernelSize
+        self.imageFeatures = []
+        # stepYSize = radiusSize
 
         while(indexY < self.processedImage.shape[0]):
 
-            if(indexY + stepYSize > self.processedImage.shape[0]):
-                stepYSize = self.processedImage.shape[0] - indexY
+            startY = indexY - radiusSize
+            finishY = indexY + radiusSize
+
+            if(startY < 0):
+                startY = 0
+
+            if(finishY > self.processedImage.shape[0]):
+                finishY = self.processedImage.shape[0]
 
             indexX = 0
-            stepXSize = kernelSize
+            # stepXSize = radiusSize
 
             while(indexX < self.processedImage.shape[1]):
 
-                if(indexX + stepXSize > self.processedImage.shape[1]):
-                    stepXSize = self.processedImage.shape[1] - indexX
+                startX = indexX - radiusSize
+                finishX = indexX + radiusSize
 
-                im = self.processedImage[indexY:indexY+stepYSize,indexX:indexX+stepXSize]
-                self.huMoments.append(cv2.HuMoments(cv2.moments(im)))
+                if(startX < 0):
+                    startX = 0
 
-                indexX += stepXSize
-            indexY += stepYSize
+                if(finishX > self.processedImage.shape[1]):
+                    finishX = self.processedImage.shape[1]
+
+                im = self.processedImage[startY:finishY,startX:finishX]
+
+                if(featureExtactionMethod == PP.OtherImagesFeaturesType.HuMoments):
+
+                    self.imageFeatures.append(cv2.HuMoments(cv2.moments(im)))
+
+                elif(featureExtactionMethod == PP.OtherImagesFeaturesType.ContourFourierDescriptors):
+
+                    self.imageFeatures.append(self.ComputeFourierDescriptors(10, im))
+
+                elif(featureExtactionMethod == PP.OtherImagesFeaturesType.PowerSpectrum):
+
+                    self.imageFeatures.append(self.LBP(5, im))
+
+
+                indexX += 1
+            indexY += 1
+
+
+    def GetPowerSpectrum(self, im = None):
+
+        if(not im is None):
+
+            return np.abs(np.fft.fft2(im))**2
+
+        else:
+            self.imageFeatures = np.abs(np.fft.fft2(self.processedImage))**2
 
 
     def ComputeCenterOfMass(self):
@@ -94,6 +132,35 @@ class ImageData:
                     self.rFunction.append(distance)
 
 
+    def kullback_leibler_divergence(self, p, q):
+
+        p = np.asarray(p)
+        q = np.asarray(q)
+        filt = np.logical_and(p != 0, q != 0)
+        return np.sum(p[filt] * np.log2(p[filt] / q[filt]))
+
+
+    def LBP(self, size, image=None):
+
+        radius = size
+        n_points = 8 * radius
+        METHOD = 'uniform'
+
+        if(not image is None):
+
+            image = imresize(image, (64, 64))
+            lbp = local_binary_pattern(image, n_points, radius, METHOD)
+
+        else: lbp = local_binary_pattern(self.processedImage, n_points, radius, METHOD)
+
+        n_bins = int(lbp.max() + 1)
+        ref_hist, _ = np.histogram(lbp, density=True, bins=n_bins, range=(0, n_bins))
+
+        if(not image is None): return ref_hist
+        else: self.imageFeatures = ref_hist
+
+
+
     def DistanceFFT(self, valuesAmount):
 
         fftResult = np.fft.fft(np.array(self.rFunction))
@@ -116,10 +183,17 @@ class ImageData:
         self.imageFeatures = newFeatures
 
 
-    def ComputeFourierDescriptors(self, amountOfDescriptors = 10):
+    def ComputeFourierDescriptors(self, amountOfDescriptors = 10, imageArray = None):
 
-        newImage, contours, hierarchy = cv2.findContours(
-            self.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        if(imageArray is None):
+
+            newImage, contours, hierarchy = cv2.findContours(
+                self.processedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        else:
+
+            newImage, contours, hierarchy = cv2.findContours(
+                imageArray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # Iterate through all contours found and store each contour's
         # elliptical Fourier descriptor's coefficients.
@@ -132,5 +206,12 @@ class ImageData:
             except:
                 continue
 
-        self.imageDescriptors = np.array(coeffs).flatten()[3 : 4 + amountOfDescriptors]
-        self.imageFeatures = self.imageDescriptors
+        self.imageDescriptors = np.array(coeffs).flatten()#[3 : 4 + amountOfDescriptors]
+
+        if(imageArray is None):
+
+            self.imageFeatures = self.imageDescriptors
+
+        else:
+
+            return self.imageDescriptors

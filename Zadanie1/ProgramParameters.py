@@ -6,6 +6,7 @@ class OtherImagesFeaturesType(str, Enum):
     ContourFourierDescriptors = "cfd"
     DistanceFourierDescriptors = "dfd"
     HuMoments = "hu"
+    PowerSpectrum = "ps"
 
 
 class ImagesToClassify(str, Enum):
