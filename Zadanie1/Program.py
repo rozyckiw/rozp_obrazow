@@ -6,12 +6,14 @@ import Features
 import ProgramParameters as PP
 import OtoczenieKuliste as OK
 import KNN
+import threading
+import datetime
 
 
 def main(args):
 
     images = "textures"
-    featureMethod = "hu"
+    featureMethod = "cu"
     classMethod = "otKul"
     ifDisplayImages = False
     ifClassify = True
@@ -52,14 +54,20 @@ def main(args):
 
             print("Loading textures..")
             trainImages, testImages = ImRead.LoadTextures()
+            # testImages = testImages[0:1]
 
             print("Processing images..")
             imSeg.ExtractImages(trainImages, onlyConvertToGreyScale=True)
             imSeg.ExtractImages(testImages, onlyConvertToGreyScale=True)
 
             print("Computing image features..")
-            Features.ComputeFeatures(trainImages, featureExtactionMethod)
+            trainThread = threading.Thread(target=Features.ComputeFeatures, args=(trainImages, featureExtactionMethod))
+            # Features.ComputeFeatures(trainImages, featureExtactionMethod)
+            print("{0} Train feature extraction started!".format(datetime.datetime.now()))
+            trainThread.start()
             Features.ComputeTexturePartFeatures(testImages, radiusSize, featureExtactionMethod)
+            trainThread.join()
+            print("{0} Train feature extraction finished!".format(datetime.datetime.now()))
 
             trainData = "Textures\\trainData.txt"
             trainLabels = "Textures\\trainLabels.txt"
@@ -67,7 +75,6 @@ def main(args):
             print("Saving features to file")
             Features.SaveFeaturesToFile(trainImages, trainLabels, trainData)
             Features.SaveImagePartsFeatures(testImages)
-
 
     elif ifClassify:
 

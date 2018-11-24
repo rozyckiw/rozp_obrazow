@@ -4,6 +4,8 @@ import pyefd
 import ProgramParameters as PP
 from skimage.feature import local_binary_pattern
 from scipy.misc import imresize
+import MyMath as MM
+from skimage.feature import greycoprops
 
 
 class ImageData:
@@ -83,6 +85,9 @@ class ImageData:
 
                     self.imageFeatures.append(self.LBP(5, im))
 
+                elif(featureExtactionMethod == PP.OtherImagesFeaturesType.CustomSpace):
+
+                    self.imageFeatures.append(self.CustomSpaceDescriptors(im))
 
                 indexX += 1
             indexY += 1
@@ -132,12 +137,42 @@ class ImageData:
                     self.rFunction.append(distance)
 
 
-    def kullback_leibler_divergence(self, p, q):
+    def CustomSpaceDescriptors(self, image=None):
 
-        p = np.asarray(p)
-        q = np.asarray(q)
-        filt = np.logical_and(p != 0, q != 0)
-        return np.sum(p[filt] * np.log2(p[filt] / q[filt]))
+        analyzeImage = self.processedImage
+
+        if(image is not None): analyzeImage = image
+
+        histogram = MM.createHistogram(analyzeImage)
+        histogramMean = MM.computeMean(histogram)
+
+        percentiles = MM.getPerentiles(histogram, [50, 90, 99])
+        histogramPerc50 = percentiles[50]
+        histogramPerc90 = percentiles[90]
+        histogramPerc99 = percentiles[99]
+
+        histogramMode10 = MM.getMode10(histogram)
+
+        glcms = MM.computeGLCM(analyzeImage, 15, 1)
+        sumGlcms = np.array([np.sum(els) for els in glcms])
+        glcmVal = np.mean(sumGlcms)
+
+        correlations = []
+        for glcm in glcms:
+
+            correlations.append(greycoprops(glcm, 'correlation')[0, 0])
+
+        correlation = float(np.mean(correlations))
+
+        lbp = local_binary_pattern(analyzeImage, 8, 7, "uniform")
+        lbpHist = MM.createHistogram(lbp)
+        lbpVal = MM.getMode(lbpHist)
+
+        descriptors = np.array([histogramMean, histogramPerc50, histogramPerc90, histogramPerc99, histogramMode10, correlation, glcmVal, lbpVal], dtype=np.float64)
+
+        if(not image is None): return descriptors
+
+        self.imageFeatures = descriptors
 
 
     def LBP(self, size, image=None):

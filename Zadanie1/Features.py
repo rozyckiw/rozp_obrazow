@@ -3,6 +3,8 @@ import ProgramParameters as PP
 import TextureSegmentation as TS
 import scipy.misc
 import numpy as np
+import datetime
+
 
 def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
@@ -26,14 +28,33 @@ def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
             imageObj.LBP(5)
 
+        elif(method == PP.OtherImagesFeaturesType.CustomSpace):
+
+            imageObj.CustomSpaceDescriptors()
+
 
 def ComputeTexturePartFeatures(imageObjects, kernelSize, featureExtactionMethod):
 
+    import threading
+
+    threads = []
     for imageObj in imageObjects:
 
         if(not "label" in imageObj.label):
 
-            imageObj.ComputeImagePartsFeatures(kernelSize, featureExtactionMethod)
+            threads.append(threading.Thread(target=RunThread, args=(imageObj, kernelSize, featureExtactionMethod)))
+            threads[-1].start()
+
+    for i in range(len(threads)):
+
+        threads[i].join()
+        #print("{0} Test feature extraction of {1} finished!".format(datetime.datetime.now(), i))
+
+
+def RunThread(imageObj, kernelSize, featureExtractionMethod):
+
+    print("{0} Computing  features of {1}".format(datetime.datetime.now(), imageObj.label))
+    imageObj.ComputeImagePartsFeatures(kernelSize, featureExtractionMethod)
 
 
 def SaveImage(textureObject):
