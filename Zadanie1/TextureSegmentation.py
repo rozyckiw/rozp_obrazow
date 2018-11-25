@@ -5,12 +5,12 @@ class TextureFeatures:
     def __init__(self, imageHeight, imageWidth, kernelSize, featureVectors, fileName):
 
         self.imageSize = (imageHeight, imageWidth)
-        # self.kernelSize = kernelSize
+        self.kernelSize = kernelSize
         self.imageFeatures = featureVectors
         self.fileName = fileName
 
 
-    def CreateTexture(self, predictions):
+    def CreateTexture(self, predictions, radiusSize):
 
         dict = {"linen": 224, "salt": 160, "straw": 96, "wood": 32}
         textureArray = np.zeros(self.imageSize, dtype=np.int32)
@@ -32,12 +32,12 @@ class TextureFeatures:
                 # if(indexX + stepXSize > textureArray.shape[1]):
                 #     stepXSize = textureArray.shape[1] - indexX
 
-                textureArray[indexY,indexX] = dict[predictions[index]]
+                textureArray[indexY:indexY+radiusSize, indexX:indexX+radiusSize] = dict[predictions[index]]
 
-                indexX += 1
+                indexX += radiusSize
                 index += 1
 
-            indexY += 1
+            indexY += radiusSize
 
         self.textureArray = textureArray
 

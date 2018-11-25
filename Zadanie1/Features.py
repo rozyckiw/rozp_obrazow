@@ -6,7 +6,7 @@ import numpy as np
 import datetime
 
 
-def ComputeFeatures(imageObjects, method, interpolateTo = 100):
+def ComputeFeatures(imageObjects, radiusSize, method, interpolateTo = 100):
 
     for imageObj in imageObjects:
 
@@ -24,13 +24,17 @@ def ComputeFeatures(imageObjects, method, interpolateTo = 100):
 
             imageObj.ComputeHuMoments()
 
-        elif(method == PP.OtherImagesFeaturesType.PowerSpectrum):
+        # elif(method == PP.OtherImagesFeaturesType.PowerSpectrum):
+        #
+        #     imageObj.LBP(radiusSize)
 
-            imageObj.LBP(5)
+        elif(method == PP.OtherImagesFeaturesType.LBP):
+
+            imageObj.LBP(radiusSize)
 
         elif(method == PP.OtherImagesFeaturesType.CustomSpace):
 
-            imageObj.CustomSpaceDescriptors()
+            imageObj.CustomSpaceDescriptors(radiusSize)
 
 
 def ComputeTexturePartFeatures(imageObjects, kernelSize, featureExtactionMethod):
@@ -78,15 +82,15 @@ def ReadFeaturesOfImage(fileName):
     with open(dataInputFile) as df:
 
         all_lines = df.readlines()
-        imageHeight, imageWidth = (int(val) for val in all_lines[0].split())
+        imageHeight, imageWidth, radiusSize = (int(val) for val in all_lines[0].split())
         inputVectors = [[float(val) for val in line.split()] for line in all_lines[1:]]
 
-    textureObject = TS.TextureFeatures(imageHeight, imageWidth, 0, inputVectors, fileName)
+    textureObject = TS.TextureFeatures(imageHeight, imageWidth, radiusSize, inputVectors, fileName)
 
     return textureObject
 
 
-def SaveImagePartsFeatures(imageObjects):
+def SaveImagePartsFeatures(imageObjects, radiusSize):
 
     outputDirectory = "Output\\Textures"
 
@@ -103,7 +107,7 @@ def SaveImagePartsFeatures(imageObjects):
             with open(dataOutputFile, 'wb') as df:
 
                 imageSize = imageObjects[0].image.shape
-                df.write("{0} {1}\n".format(imageSize[0], imageSize[1]))
+                df.write("{0} {1} {2}\n".format(imageSize[0], imageSize[1], radiusSize))
                 line = ""
 
                 for features in imageObj.imageFeatures:

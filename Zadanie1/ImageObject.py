@@ -35,9 +35,14 @@ class ImageData:
         self.processedImage = self.image
 
 
-    def ComputeHuMoments(self):
+    def ComputeHuMoments(self, image=None):
 
-        self.imageFeatures = cv2.HuMoments(cv2.moments(self.processedImage)).flatten()
+        analyzeImage = self.processedImage
+        if(not image is None): analyzeImage = image
+
+        if(not image is None): return cv2.HuMoments(cv2.moments(analyzeImage)).flatten()
+
+        self.imageFeatures = cv2.HuMoments(cv2.moments(analyzeImage)).flatten()
 
 
     def ComputeImagePartsFeatures(self, radiusSize, featureExtactionMethod):
@@ -71,7 +76,7 @@ class ImageData:
                 if(finishX > self.processedImage.shape[1]):
                     finishX = self.processedImage.shape[1]
 
-                im = self.processedImage[startY:finishY,startX:finishX]
+                im = self.processedImage[indexY:finishY, indexX:finishX]
 
                 if(featureExtactionMethod == PP.OtherImagesFeaturesType.HuMoments):
 
@@ -81,16 +86,20 @@ class ImageData:
 
                     self.imageFeatures.append(self.ComputeFourierDescriptors(10, im))
 
-                elif(featureExtactionMethod == PP.OtherImagesFeaturesType.PowerSpectrum):
+                # elif(featureExtactionMethod == PP.OtherImagesFeaturesType.PowerSpectrum):
+                #
+                #     self.imageFeatures.append(self.LBP(5, im))
 
-                    self.imageFeatures.append(self.LBP(5, im))
+                elif(featureExtactionMethod == PP.OtherImagesFeaturesType.LBP):
+
+                    self.imageFeatures.append(self.LBP(radiusSize, im))
 
                 elif(featureExtactionMethod == PP.OtherImagesFeaturesType.CustomSpace):
 
-                    self.imageFeatures.append(self.CustomSpaceDescriptors(im))
+                    self.imageFeatures.append(self.CustomSpaceDescriptors(radiusSize, im))
 
-                indexX += 1
-            indexY += 1
+                indexX += radiusSize
+            indexY += radiusSize
 
 
     def GetPowerSpectrum(self, im = None):
@@ -100,7 +109,7 @@ class ImageData:
             return np.abs(np.fft.fft2(im))**2
 
         else:
-            self.imageFeatures = np.abs(np.fft.fft2(self.processedImage))**2
+            self.imageFeatures = np.abs(np.fft.fft2(self.procesedImage))**2
 
 
     def ComputeCenterOfMass(self):
@@ -137,23 +146,23 @@ class ImageData:
                     self.rFunction.append(distance)
 
 
-    def CustomSpaceDescriptors(self, image=None):
+    def CustomSpaceDescriptors(self, radius, image=None):
 
         analyzeImage = self.processedImage
 
         if(image is not None): analyzeImage = image
 
-        histogram = MM.createHistogram(analyzeImage)
-        histogramMean = MM.computeMean(histogram)
+        # histogram = MM.createHistogram(analyzeImage)
+        # histogramMean = MM.computeMean(histogram)
+        #
+        # percentiles = MM.getPerentiles(histogram, [50, 90, 99])
+        # histogramPerc50 = percentiles[50]
+        # histogramPerc90 = percentiles[90]
+        # histogramPerc99 = percentiles[99]
+        #
+        # histogramMode10 = MM.getMode10(histogram)
 
-        percentiles = MM.getPerentiles(histogram, [50, 90, 99])
-        histogramPerc50 = percentiles[50]
-        histogramPerc90 = percentiles[90]
-        histogramPerc99 = percentiles[99]
-
-        histogramMode10 = MM.getMode10(histogram)
-
-        glcms = MM.computeGLCM(analyzeImage, 15, 1)
+        glcms = MM.computeGLCM(analyzeImage, radius * 2, 1)
         sumGlcms = np.array([np.sum(els) for els in glcms])
         glcmVal = np.mean(sumGlcms)
 
@@ -164,36 +173,42 @@ class ImageData:
 
         correlation = float(np.mean(correlations))
 
-        lbp = local_binary_pattern(analyzeImage, 8, 7, "uniform")
+        lbp = local_binary_pattern(analyzeImage, 8, radius, "uniform")
         lbpHist = MM.createHistogram(lbp)
         lbpVal = MM.getMode(lbpHist)
 
-        descriptors = np.array([histogramMean, histogramPerc50, histogramPerc90, histogramPerc99, histogramMode10, correlation, glcmVal, lbpVal], dtype=np.float64)
+        huMoments = self.ComputeHuMoments(analyzeImage)
+        # descriptors = [histogramMean, histogramPerc50, histogramPerc90, histogramPerc99, histogramMode10,
+        #                correlation, glcmVal, lbpVal]
+        descriptors = [correlation, glcmVal, lbpVal]
+        descriptors.extend(huMoments)
+
+        descriptors = np.array(descriptors, dtype=np.float64)
 
         if(not image is None): return descriptors
 
         self.imageFeatures = descriptors
 
 
-    def LBP(self, size, image=None):
+    def LBP(self, radius, image=None):
 
-        radius = size
+        radius = 2
         n_points = 8 * radius
         METHOD = 'uniform'
 
         if(not image is None):
 
-            image = imresize(image, (64, 64))
+            #image = imresize(image, (64, 64))
             lbp = local_binary_pattern(image, n_points, radius, METHOD)
 
-        else: lbp = local_binary_pattern(self.processedImage, n_points, radius, METHOD)
+        else:
+            lbp = local_binary_pattern(self.processedImage, n_points, radius, METHOD)
 
         n_bins = int(lbp.max() + 1)
         ref_hist, _ = np.histogram(lbp, density=True, bins=n_bins, range=(0, n_bins))
 
         if(not image is None): return ref_hist
         else: self.imageFeatures = ref_hist
-
 
 
     def DistanceFFT(self, valuesAmount):

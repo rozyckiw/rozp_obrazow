@@ -7,6 +7,7 @@ class OtherImagesFeaturesType(str, Enum):
     DistanceFourierDescriptors = "dfd"
     HuMoments = "hu"
     PowerSpectrum = "ps"
+    LBP = "lbp"
     CustomSpace = "cu"
 
 
@@ -21,3 +22,4 @@ class ClassificationMethod(str, Enum):
 
     KNN = "knn"
     OtoczenieKuliste = "otKul"
+    Percepton = "perc"
