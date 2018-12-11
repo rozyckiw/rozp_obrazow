@@ -42,7 +42,7 @@ def Bitwise(imageObject):
 def Blur(imageObject):
 
     #kernel = np.ones((6,6),np.float32)/25
-    imageObject.processedImage = cv2.GaussianBlur(imageObject.processedImage, (15,15),  0)
+    imageObject.processedImage = cv2.GaussianBlur(imageObject.processedImage, (5,5),  0)
 
 
 def Sharpen(imageObject):
