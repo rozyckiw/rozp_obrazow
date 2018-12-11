@@ -15,8 +15,8 @@ import numpy as np
 def main(args):
 
     images = "textures"
-    featureMethod = "cu"
-    classMethod = "perc"
+    featureMethod = "hu"
+    classMethod = "otKul"
     ifDisplayImages = False
     ifClassify = True
     radiusSize = 7
