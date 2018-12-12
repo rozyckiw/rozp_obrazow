@@ -15,8 +15,8 @@ import numpy as np
 def main(args):
 
     images = "textures"
-    featureMethod = "hu"
-    classMethod = "otKul"
+    featureMethod = "cu"
+    classMethod = "perc"
     ifDisplayImages = False
     ifClassify = True
     radiusSize = 7
@@ -124,11 +124,11 @@ def main(args):
         elif(classificationMethod == PP.ClassificationMethod.Percepton):
 
             trainDataD, trainLabelsD = readTrainData("Output\\" + trainData, "Output\\" + trainLabels)
-            hidden_layers = [10, 5]
-            myDNN = Percepton(trainDataD.shape[1], 4, hidden_layers, ifBias=True, batch_size=50)
+            hidden_layers = [10]
+            myDNN = Percepton(trainDataD.shape[1], 4, hidden_layers, ifBias=True, batch_size=0)
 
             print("[%s] Training model.." %(datetime.datetime.now()))
-            myDNN.train(trainDataD, trainLabelsD, l_rate=0.1, n_epochs=1500, epsilon=10e-12)
+            myDNN.train(trainDataD, trainLabelsD, l_rate=0.1, n_epochs=10000, epsilon=10e-12)
             print("[%s] Model has been trained!" %(datetime.datetime.now()))
 
             for textureObj in textureObjects:

@@ -152,15 +152,15 @@ class ImageData:
 
         if(image is not None): analyzeImage = image
 
-        # histogram = MM.createHistogram(analyzeImage)
-        # histogramMean = MM.computeMean(histogram)
-        #
-        # percentiles = MM.getPerentiles(histogram, [50, 90, 99])
-        # histogramPerc50 = percentiles[50]
-        # histogramPerc90 = percentiles[90]
-        # histogramPerc99 = percentiles[99]
-        #
-        # histogramMode10 = MM.getMode10(histogram)
+        histogram = MM.createHistogram(analyzeImage)
+        histogramMean = MM.computeMean(histogram)
+
+        percentiles = MM.getPerentiles(histogram, [50, 90, 99])
+        histogramPerc50 = percentiles[50]
+        histogramPerc90 = percentiles[90]
+        histogramPerc99 = percentiles[99]
+
+        histogramMode10 = MM.getMode10(histogram)
 
         glcms = MM.computeGLCM(analyzeImage, radius * 2, 1)
         sumGlcms = np.array([np.sum(els) for els in glcms])
@@ -178,9 +178,9 @@ class ImageData:
         lbpVal = MM.getMode(lbpHist)
 
         huMoments = self.ComputeHuMoments(analyzeImage)
-        # descriptors = [histogramMean, histogramPerc50, histogramPerc90, histogramPerc99, histogramMode10,
-        #                correlation, glcmVal, lbpVal]
-        descriptors = [correlation, glcmVal, lbpVal]
+        descriptors = [histogramMean, histogramPerc50, histogramPerc90, histogramPerc99, histogramMode10,
+                       correlation, glcmVal, lbpVal]
+        # descriptors = [correlation, glcmVal, lbpVal]
         descriptors.extend(huMoments)
 
         descriptors = np.array(descriptors, dtype=np.float64)
