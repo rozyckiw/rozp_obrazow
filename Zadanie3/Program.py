@@ -10,8 +10,8 @@ IF_DISPLAY_IMAGES = True
 def main(args):
 
     orgImages = LoadImages()
-    thresholded = ImagePreprocess(orgImages)
-    cannyImages = GetGradientImages(thresholded)
+    proceedImage = ImagePreprocess(orgImages)
+    cannyImages = GetGradientImages(proceedImage)
 
     if(IF_DISPLAY_IMAGES):
 
@@ -26,7 +26,9 @@ def GetGradientImages(images):
     for key in images.keys():
 
         # image = cv2.cvtColor(images[key], cv2.COLOR_BGR2GRAY)
-        cannyImages[key] = cv2.Canny(images[key], 0, 255)
+        cannyImages[key] = cv2.Canny(images[key], 200, 255)
+        # cnts = cv2.findContours(cannyImages[key].copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # print("{0}: {1}".format(key, len(cnts[0])))
 
     return cannyImages
 
@@ -34,19 +36,45 @@ def GetGradientImages(images):
 def ImagePreprocess(images):
 
     preProceed = {}
-    kernel = np.ones((3, 3), np.uint8)
+    kernel = np.ones((8, 8), np.uint8)
+    kernel2 = np.ones((3, 3), np.uint8)
+    kernel_sharpening = np.array([[-1,-1,-1],
+                                  [-1, 9,-1],
+                                  [-1,-1,-1]])
 
     for key in images.keys():
 
         image = cv2.cvtColor(images[key], cv2.COLOR_BGR2GRAY)
-        # image = cv2.GaussianBlur(image, (5, 5),  0)
-        image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-        # image = cv2.dilate(image, kernel, iterations=1)
+        # clahe = cv2.createCLAHE(clipLimit=0.2, tileGridSize=(8, 8))
+        # image = clahe.apply(image)
+        # image = cv2.bilateralFilter(image, 21, 17, 17)
+        # image = cv2.medianBlur(image, 5)
+
+
+        # applying the sharpening kernel to the input image & displaying it.
+        image = cv2.filter2D(image, -1, kernel_sharpening)
+        ret, image = cv2.threshold(image, 215, 255, cv2.THRESH_BINARY_INV)
+        image = cv2.erode(image, kernel2, iterations=2)
+
+        # image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 2)
         # image = cv2.erode(image, kernel, iterations=1)
-        # image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
+        # image = cv2.dilate(image, kernel, iterations=1)
+        image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel2)
+        # image = cv2.erode(image, kernel2, iterations=2)
         preProceed[key] = image
 
     return preProceed
+
+
+def HistogramEqualization(image):
+
+    hist, bins = np.histogram(image.flatten(), 256, [0, 256])
+    cdf = hist.cumsum()
+    cdf_normalized = cdf * hist.max() / cdf.max()
+
+    cdf_m = np.ma.masked_equal(cdf, 0)
+    cdf_m = (cdf_m - cdf_m.min())*255/(cdf_m.max()-cdf_m.min())
+    cdf = np.ma.filled(cdf_m, 0).astype('uint8')
 
 
 def LoadImages():

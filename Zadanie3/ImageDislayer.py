@@ -28,12 +28,18 @@ class ImageDisplayer:
     def keyPressed(self, event):
 
         if (event.key == 'x'):
-            self.actualFirstImage += self.imagesPerPage
-            self.UpdatePlot()
+
+            if(self.actualFirstImage + self.imagesPerPage <= len(self.allImages)):
+
+                self.actualFirstImage += self.imagesPerPage
+                self.UpdatePlot()
 
         elif (event.key == 'z'):
-            self.actualFirstImage -= self.imagesPerPage
-            self.UpdatePlot()
+
+            if(self.actualFirstImage - self.imagesPerPage >= 0):
+
+                self.actualFirstImage -= self.imagesPerPage
+                self.UpdatePlot()
 
 
     def ImagesAnimation(self, images, labels):
