@@ -13,10 +13,13 @@ class ImageDisplayer:
         self.allLabels = None
 
 
-    def DisplayImagesAnimation(self, images):
+    def DisplayImagesAnimation(self, images, howManyGrapes):
 
         self.allImages = [images[key] for key in images.keys()]
-        self.allLabels = [key for key in images.keys()]
+        self.allLabels = ["{0}\nRed: {1}\nYellow: {2}".format(key,
+                                                              howManyGrapes[key][0],
+                                                              howManyGrapes[key][1])
+                                                            for key in images.keys()]
 
         imagesToDisplay = self.allImages[self.actualFirstImage : self.actualFirstImage + self.imagesPerPage]
         labelsToDisplay = [self.allLabels[i] for i in
@@ -63,9 +66,19 @@ class ImageDisplayer:
                 if (imageArray.ndim == 1):
                     imageArray = np.reshape(imageArray, (-1, int(np.sqrt(len(imageArray)))))
 
-                self.imagePlot[i, j].matshow(imageArray, cmap='gray')
-                self.imagePlot[i, j].set_title(labels[imageIndex])
-                self.imagePlot[i, j].axis('off')
+                if(imageArray.ndim < 3):
+
+                    self.imagePlot[i, j].matshow(imageArray, cmap='gray')
+                    self.imagePlot[i, j].set_title(labels[imageIndex])
+                    self.imagePlot[i, j].axis('off')
+
+                else:
+
+                    self.imagePlot[i, j].imshow(imageArray[:,:,::-1], cmap='gray')
+                    self.imagePlot[i, j].set_title(labels[imageIndex])
+                    self.imagePlot[i, j].axis('off')
+
+
                 imageIndex += 1
 
         plt.show()
